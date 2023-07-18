@@ -26,7 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.naming.Context;
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.*;
+import java.beans.beancontext.BeanContext;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -124,6 +127,25 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .build();
 
         employeeMapper.update(emp);
+    }
+
+    @Override
+    public Employee selectById(Integer id) {
+
+        Employee emp = employeeMapper.selectById(id);
+        emp.setPassword("****");
+        return emp;
+    }
+
+    @Override
+    public void edit(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO,employee);
+
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateTime(LocalDateTime.now());
+
+        employeeMapper.update(employee);
     }
 
 }
