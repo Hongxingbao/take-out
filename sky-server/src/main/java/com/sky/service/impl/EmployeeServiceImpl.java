@@ -91,8 +91,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         String password = PasswordUtil.encrypt(PasswordConstant.DEFAULT_PASSWORD);
         employee.setPassword(password);
 
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
 
         employee.setStatus(StatusConstant.ENABLE);
 
@@ -102,9 +102,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 //        Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
 
         //在拦截器通过ThreadLocal存储empId，然后在此处取到empId
-        Long empId = BaseContext.getCurrentId();
-        employee.setCreateUser(empId);
-        employee.setUpdateUser(empId);
+//        Long empId = BaseContext.getCurrentId();
+//        employee.setCreateUser(empId);
+//        employee.setUpdateUser(empId);
         employeeMapper.insert(employee);
 
     }
@@ -142,8 +142,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO,employee);
 
-        employee.setUpdateUser(BaseContext.getCurrentId());
-        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setUpdateUser(BaseContext.getCurrentId());
+//        employee.setUpdateTime(LocalDateTime.now());
 
         employeeMapper.update(employee);
     }
