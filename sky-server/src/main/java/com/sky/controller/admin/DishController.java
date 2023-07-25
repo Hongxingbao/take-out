@@ -2,7 +2,6 @@ package com.sky.controller.admin;
 
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
-import com.sky.dto.SetmealDTO;
 import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
@@ -12,9 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/admin/dish")
@@ -24,6 +25,9 @@ public class DishController {
 
     @Autowired
     private DishService dishService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 新增菜品
@@ -35,6 +39,9 @@ public class DishController {
     @ApiOperation("新增菜品")
     public Result save(@RequestBody DishDTO dishDTO) {
         dishService.save(dishDTO);
+        //清理缓存数据
+        String key = "dish_" + dishDTO.getCategoryId();
+        cleanCache(key);
         return Result.success();
     }
 
@@ -56,6 +63,8 @@ public class DishController {
     public Result<PageResult> deleteBatch(@RequestParam List<Long> ids) {
         log.info("ids:{}", ids);
         dishService.deleteBatch(ids);
+        //清理所有以dish_为开头的缓存数据
+        cleanCache("dish_*");
         return Result.success();
     }
 
@@ -73,38 +82,53 @@ public class DishController {
 
     /**
      * 修改菜品信息和口味信息
+     *
      * @param dishDTO
      * @return
      */
     @PutMapping
     @ApiOperation("修改菜品信息")
-    public Result UpdateWithFlavors(@RequestBody DishDTO dishDTO){
-            dishService.UpdateWithFlavors(dishDTO);
-            return Result.success();
+    public Result UpdateWithFlavors(@RequestBody DishDTO dishDTO) {
+        dishService.UpdateWithFlavors(dishDTO);
+        //清理所有以dish_为开头的缓存数据
+        cleanCache("dish_*");
+        return Result.success();
     }
 
     /**
      * 菜品停售起售
+     *
      * @param id
      * @return
      */
     @PostMapping("/status/{status}")
-    public Result startAndStop(@PathVariable Integer status,Long id){
-        dishService.startAndStop(status,id);
+    public Result startAndStop(@PathVariable Integer status, Long id) {
+        dishService.startAndStop(status, id);
+        //清理所有以dish_为开头的缓存数据
+        cleanCache("dish_*");
         return Result.success();
     }
 
     /**
      * 根据分类id查询菜品
+     *
      * @param categoryId
      * @return
      */
     @GetMapping("/list")
     @ApiOperation("根据分类id查询菜品")
-    public Result<List<Dish>> getDishByCategoryId(Long categoryId,String name){
-        List<Dish> dishs = dishService.getDishByCategoryId(categoryId,name);
+    public Result<List<Dish>> getDishByCategoryId(Long categoryId, String name) {
+        List<Dish> dishs = dishService.getDishByCategoryId(categoryId, name);
         return Result.success(dishs);
     }
 
-
+    /**
+     * 清理缓存
+     *
+     * @param pattern
+     */
+    private void cleanCache(String pattern) {
+        Set keys = redisTemplate.keys(pattern);
+        redisTemplate.delete(keys);
+    }
 }
