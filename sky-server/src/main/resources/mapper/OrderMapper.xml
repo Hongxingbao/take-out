@@ -76,11 +76,11 @@
     <select id="sumByMap" resultType="java.lang.Double">
         select sum(amount) from orders
         <where>
-            <if test="timeBegin != null">
-                and order_time &gt; #{timeBegin}
+            <if test="begin != null">
+                and order_time &gt; #{begin}
             </if>
-            <if test="timeEnd != null">
-                and order_time &lt; #{timeEnd}
+            <if test="end != null">
+                and order_time &lt; #{end}
             </if>
             <if test="status != null">
                 and status = #{status}
@@ -91,11 +91,11 @@
     <select id="countByMap" resultType="java.lang.Integer">
         select count(*) from orders
         <where>
-            <if test="timeBegin != null">
-                and order_time &gt; #{timeBegin}
+            <if test="begin != null">
+                and order_time &gt; #{begin}
             </if>
-            <if test="timeEnd != null">
-                and order_time &lt; #{timeEnd}
+            <if test="end != null">
+                and order_time &lt; #{end}
             </if>
             <if test="status != null">
                 and status = #{status}
